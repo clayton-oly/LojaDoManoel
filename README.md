@@ -19,8 +19,8 @@ API em .NET 8 para gerenciamento de pedidos e empacotamento de produtos, usando 
 1. Clone o repositório
 
 ```bash
-git clone <https://github.com/clayton-oly/LojaDoManoel.git>
-cd <LojaDoManoel.git>
+git clone https://github.com/clayton-oly/LojaDoManoel.git
+cd LojaDoManoel.git
 ```
 
 2. Suba os containers com Docker Compose
