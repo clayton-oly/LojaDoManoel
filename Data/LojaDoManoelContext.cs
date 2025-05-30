@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
 
 namespace LojaDoManoel.Service
 {
@@ -11,45 +10,55 @@ namespace LojaDoManoel.Service
         }
 
         public DbSet<Pedido> Pedidos { get; set; }
-        public DbSet<Produto> Produtos { get; set; }
+        public DbSet<CaixaEntity> Caixas { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Pedido>(entity =>
             {
                 entity.HasKey(e => e.PedidoId);
-                entity.Property(e => e.PedidoId).ValueGeneratedOnAdd();
-                entity.HasMany(e => e.Produtos)
-                    .WithOne(p => p.Pedido)
-                    .HasForeignKey(p => p.PedidoId)
-                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasMany(e => e.Caixas)
+                      .WithOne(c => c.Pedido)
+                      .HasForeignKey(c => c.PedidoId)
+                      .OnDelete(DeleteBehavior.Cascade);
             });
 
-            modelBuilder.Entity<Produto>(entity =>
+            modelBuilder.Entity<CaixaEntity>(entity =>
             {
-                entity.HasKey(e => e.ProdutoId);
-                entity.Property(p => p.ProdutoCodigo).IsRequired();
-                entity.Property(p => p.Altura).IsRequired();
-                entity.Property(p => p.Largura).IsRequired();
-                entity.Property(p => p.Comprimento).IsRequired();
+                entity.HasKey(e => e.CaixaEntityId);
+
+                entity.Property(e => e.CaixaId)
+                      .IsRequired()
+                      .HasMaxLength(100);
+
+                entity.Property(e => e.Produtos)
+                      .IsRequired();
+
+                entity.Property(e => e.Observacao)
+                      .HasMaxLength(500);
             });
+
+            base.OnModelCreating(modelBuilder);
         }
     }
 
     public class Pedido
     {
         public int PedidoId { get; set; }
-        public List<Produto> Produtos { get; set; } = new List<Produto>();
+
+        public List<CaixaEntity> Caixas { get; set; } = new List<CaixaEntity>();
     }
 
-    public class Produto
+    public class CaixaEntity
     {
-        public int ProdutoId { get; set; }
-        public string ProdutoCodigo { get; set; } 
+        public int CaixaEntityId { get; set; }
 
-        public int Altura { get; set; }
-        public int Largura { get; set; }
-        public int Comprimento { get; set; }
+        public string CaixaId { get; set; } 
+
+        public string Produtos { get; set; }  
+
+        public string? Observacao { get; set; }
 
         public int PedidoId { get; set; }
         public Pedido Pedido { get; set; }

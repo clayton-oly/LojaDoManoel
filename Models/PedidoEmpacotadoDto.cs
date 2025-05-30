@@ -8,7 +8,7 @@ namespace LojaDoManoel.Models
         public int PedidoId { get; set; }
 
         [JsonPropertyName("caixas")]
-        public List<CaixaEmpacotadaDto> Caixas { get; set; }
+        public List<CaixaEmpacotadaDto> Caixas { get; set; } = new List<CaixaEmpacotadaDto>();
     }
 
 }

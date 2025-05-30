@@ -10,6 +10,10 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddScoped<IEmpacotamentoService, EmpacotamentoService>();
+builder.Services.AddScoped<IPedidoService, PedidoService>();
+
+
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())

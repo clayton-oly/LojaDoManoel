@@ -6,37 +6,23 @@ using Microsoft.AspNetCore.Mvc;
 [Route("api/[controller]")]
 public class PedidoController : ControllerBase
 {
-    private readonly LojaDoManoelContext _context;
+    private readonly IPedidoService _pedidoSaveService;
 
-    public PedidoController(LojaDoManoelContext context)
+    public PedidoController(IPedidoService pedidoSaveService)
     {
-        _context = context;
+        _pedidoSaveService = pedidoSaveService;
     }
 
+
     [HttpPost("salvar")]
-    public async Task<IActionResult> SalvarPedido([FromBody] PedidoDto pedidoDto)
+    public async Task<IActionResult> Salvar([FromBody] PedidoEmpacotadoRequestDto request)
     {
+        var pedidos = request.PedidosEmpacotados;
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        var pedido = new Pedido();
+        await _pedidoSaveService.SalvarPedidosAsync(pedidos);
 
-        foreach (var prodDto in pedidoDto.Produtos)
-        {
-            var produto = new Produto
-            {
-                ProdutoCodigo = prodDto.ProdutoId,
-                Altura = prodDto.Dimensoes.Altura,
-                Largura = prodDto.Dimensoes.Largura,
-                Comprimento = prodDto.Dimensoes.Comprimento
-            };
-
-            pedido.Produtos.Add(produto);
-        }
-
-        _context.Pedidos.Add(pedido);
-        await _context.SaveChangesAsync();
-
-        return Ok(new { pedido_id = pedido.PedidoId });
+        return Ok(new { mensagem = "Pedidos salvos com sucesso!" });
     }
 }
