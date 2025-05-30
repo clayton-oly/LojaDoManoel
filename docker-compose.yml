@@ -29,7 +29,7 @@ services:
       - backend
     command: >
       sh -c "dotnet ef database update --no-build &&
-             dotnet LojaDoManoel.Service.dll"
+             dotnet LojaDoManoel.dll"
 
 volumes:
   sqlserverdata:

@@ -3,6 +3,11 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.ListenAnyIP(80);
+});
+
 builder.Services.AddDbContext<LojaDoManoelContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
@@ -13,7 +18,6 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IEmpacotamentoService, EmpacotamentoService>();
 builder.Services.AddScoped<IPedidoService, PedidoService>();
 
-
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
@@ -22,11 +26,8 @@ using (var scope = app.Services.CreateScope())
     db.Database.Migrate();
 }
 
-if (app.Environment.IsDevelopment())
-{
     app.UseSwagger();
     app.UseSwaggerUI();
-}
 
 app.UseHttpsRedirection();
 
