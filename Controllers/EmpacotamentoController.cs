@@ -10,6 +10,7 @@ namespace LojaDoManoel.Controllers
     {
         private readonly IEmpacotamentoService _service;
 
+
         public EmpacotamentoController(IEmpacotamentoService service)
         {
             _service = service;

@@ -23,37 +23,38 @@ namespace LojaDoManoel.Service
             foreach (var pedido in pedidos)
             {
                 var caixasUsadas = new List<CaixaEmpacotadaDto>();
+                var produtosNaoEmpacotados = new List<ProdutoDto>(pedido.Produtos);
 
-                foreach (var produto in pedido.Produtos)
+                foreach (var caixa in _caixasDisponiveis.OrderBy(c => c.CaixaId))
                 {
-                    var caixa = EncontrarCaixaParaProduto(produto);
+                    var produtosNaCaixa = new List<string>();
 
-                    if (caixa == null)
+                    var cabemNaCaixa = produtosNaoEmpacotados
+                        .Where(p => ProdutoCabeNaCaixa(p, caixa))
+                        .ToList();
+
+                    if (cabemNaCaixa.Any())
                     {
+                        produtosNaCaixa.AddRange(cabemNaCaixa.Select(p => p.ProdutoId));
                         caixasUsadas.Add(new CaixaEmpacotadaDto
                         {
-                            CaixaId = null,
-                            Produtos = new List<string> { produto.ProdutoId },
-                            Observacao = "Produto não cabe em nenhuma caixa disponível."
+                            CaixaId = caixa.CaixaId,
+                            Produtos = produtosNaCaixa
                         });
+
+                        foreach (var p in cabemNaCaixa)
+                            produtosNaoEmpacotados.Remove(p);
                     }
-                    else
+                }
+
+                foreach (var produto in produtosNaoEmpacotados)
+                {
+                    caixasUsadas.Add(new CaixaEmpacotadaDto
                     {
-                        var caixaExistente = caixasUsadas
-                            .FirstOrDefault(c => c.CaixaId == caixa.CaixaId && c.Observacao == null);
-
-                        if (caixaExistente == null)
-                        {
-                            caixaExistente = new CaixaEmpacotadaDto
-                            {
-                                CaixaId = caixa.CaixaId,
-                                Produtos = new List<string>()
-                            };
-                            caixasUsadas.Add(caixaExistente);
-                        }
-
-                        caixaExistente.Produtos.Add(produto.ProdutoId);
-                    }
+                        CaixaId = null,
+                        Produtos = new List<string> { produto.ProdutoId },
+                        Observacao = "Produto não cabe em nenhuma caixa disponível."
+                    });
                 }
 
                 resultado.Add(new PedidoEmpacotadoDto
@@ -66,14 +67,12 @@ namespace LojaDoManoel.Service
             return resultado;
         }
 
-        private Caixa EncontrarCaixaParaProduto(ProdutoDto produto)
+        private bool ProdutoCabeNaCaixa(ProdutoDto produto, Caixa caixa)
         {
-            return _caixasDisponiveis
-                .FirstOrDefault(c =>
-                    produto.Dimensoes.Altura <= c.Altura &&
-                    produto.Dimensoes.Largura <= c.Largura &&
-                    produto.Dimensoes.Comprimento <= c.Comprimento);
-        }
+            return produto.Dimensoes.Altura <= caixa.Altura &&
+                   produto.Dimensoes.Largura <= caixa.Largura &&
+                   produto.Dimensoes.Comprimento <= caixa.Comprimento;
 
+        }
     }
 }
